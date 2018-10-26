@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const NavStyles = styled.ul`
   margin: 0;
@@ -23,7 +23,7 @@ const NavStyles = styled.ul`
       padding: 0 10px;
     }
     &:before {
-      content: '';
+      content: "";
       width: 2px;
       background: ${props => props.theme.lightgrey};
       height: 100%;
@@ -36,7 +36,7 @@ const NavStyles = styled.ul`
     &:after {
       height: 2px;
       background: red;
-      content: '';
+      content: "";
       width: 0;
       position: absolute;
       transform: translateX(-50%);
