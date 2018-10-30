@@ -8,8 +8,11 @@ type Mutation {
     largeImage: String
     price: Int!
   ): Item!
+
+  updateItem(id: ID!, title: String, description: String, price: Int): Item!
 }
 
 type Query {
   items: [Item]!
+  item(where: ItemWhereUniqueInput!): Item
 }
