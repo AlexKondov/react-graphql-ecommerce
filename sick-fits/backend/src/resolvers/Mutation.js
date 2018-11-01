@@ -49,10 +49,7 @@ const mutations = {
 
   async deleteItem(parent, args, context, info) {
     const where = { id: args.id };
-    // 1. find the item
     const item = await context.db.query.item({ where }, `{ id, title}`);
-    // 2. check if they own the item
-    // 3. delete it
     return context.db.mutation.deleteItem({ where }, info);
   },
 
