@@ -1,15 +1,15 @@
 import React from "react";
-import CreateItem from "../components/CreateItem";
 import PleaseSignIn from "../components/PleaseSignIn";
+import Permissions from "../components/Permissions";
 
-class Sell extends React.Component {
+class PermissionsPage extends React.Component {
   render() {
     return (
       <PleaseSignIn>
-        <CreateItem />
+        <Permissions />
       </PleaseSignIn>
     );
   }
 }
 
-export default Sell;
+export default PermissionsPage;

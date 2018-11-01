@@ -3,11 +3,26 @@ const jwt = require("jsonwebtoken");
 const { randomBytes } = require("crypto");
 const { promisify } = require("util");
 
+const { transport, makeANiceEmail } = require("../mail");
+
 const mutations = {
   async createItem(parent, args, context, info) {
+    if (!context.request.userId) {
+      throw new Error("You must be logged in to do that!");
+    }
+
     const item = await context.db.mutation.createItem(
       {
-        data: { ...args }
+        data: {
+          // This is how we create a relationship between
+          // the item and the user
+          user: {
+            connect: {
+              id: context.request.userId
+            }
+          },
+          ...args
+        }
       },
       info
     );
@@ -115,9 +130,21 @@ const mutations = {
       where: { email },
       data: { resetToken, resetTokenExpiry }
     });
-    console.log(res);
-    return { message: "Thanks" };
+
     // 3. Email them that reset token
+    const mailResponse = await transport.sendMail({
+      from: "alex@kondov.rocks",
+      to: user.email,
+      subject: "Your Password Reset Token",
+      html: makeANiceEmail(`
+        Your Password Reset Token is here!
+        <a href="${
+          process.env.FRONTEND_URL
+        }/reset?resetToken=${resetToken}">Click Here to Reset</a>
+      `)
+    });
+
+    return { message: "Thanks" };
   },
 
   async resetPassword(parent, args, context, info) {
