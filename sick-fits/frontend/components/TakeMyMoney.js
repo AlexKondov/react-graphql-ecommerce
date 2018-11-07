@@ -16,7 +16,7 @@ function totalItems(cart) {
 class TakeMyMoney extends React.Component {
   onToken = res => {
     // Get the single-use token that we will use to charge the credit card
-    console.log(res.id);
+    console.log(res);
   };
 
   render() {
@@ -28,8 +28,7 @@ class TakeMyMoney extends React.Component {
             name="Sick Fits!"
             description={`Order of ${totalItems(me.cart)} items!`}
             image={me.cart[0].item && me.cart[0].item.image}
-            // Fill in the Stripe key here
-            stripeKey=""
+            stripeKey="pk_test_DETC83HTEu5khFarYC8XmLwP"
             currency="USD"
             email={me.email}
             token={res => this.onToken(res)}
