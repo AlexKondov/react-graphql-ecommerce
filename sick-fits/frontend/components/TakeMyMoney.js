@@ -13,28 +13,61 @@ function totalItems(cart) {
   return cart.reduce((total, item) => total + item.quantity, 0);
 }
 
+const CREATE_ORDER_MUTATION = gql`
+  mutation CREATE_ORDER_MUTATION($token: String!) {
+    createOrder(token: $token) {
+      id
+      charge
+      total
+      items {
+        id
+        title
+      }
+    }
+  }
+`;
+
 class TakeMyMoney extends React.Component {
-  onToken = res => {
-    // Get the single-use token that we will use to charge the credit card
-    console.log(res);
+  onToken = async (res, createOrder) => {
+    NProgress.start();
+
+    const order = await createOrder({
+      variables: {
+        token: res.id
+      }
+    }).catch(err => alert(err.message));
+
+    Router.push({
+      pathname: "/order",
+      query: { id: order.data.createOrder.id }
+    });
   };
 
   render() {
     return (
       <User>
         {({ data: { me } }) => (
-          <StripeCheckout
-            amount={calcTotalPrice(me.cart)}
-            name="Sick Fits!"
-            description={`Order of ${totalItems(me.cart)} items!`}
-            image={me.cart[0].item && me.cart[0].item.image}
-            stripeKey="pk_test_DETC83HTEu5khFarYC8XmLwP"
-            currency="USD"
-            email={me.email}
-            token={res => this.onToken(res)}
+          <Mutation
+            refetchQueries={[{ query: CURRENT_USER_QUERY }]}
+            mutation={CREATE_ORDER_MUTATION}
           >
-            {this.props.children}
-          </StripeCheckout>
+            {createOrder => (
+              <StripeCheckout
+                amount={calcTotalPrice(me.cart)}
+                name="Sick Fits!"
+                description={`Order of ${totalItems(me.cart)} items!`}
+                image={
+                  me.cart.length && me.cart[0].item && me.cart[0].item.image
+                }
+                stripeKey="pk_test_DETC83HTEu5khFarYC8XmLwP"
+                currency="USD"
+                email={me.email}
+                token={res => this.onToken(res, createOrder)}
+              >
+                {this.props.children}
+              </StripeCheckout>
+            )}
+          </Mutation>
         )}
       </User>
     );

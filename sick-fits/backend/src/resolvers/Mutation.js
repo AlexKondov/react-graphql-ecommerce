@@ -5,6 +5,7 @@ const { promisify } = require("util");
 
 const { transport, makeANiceEmail } = require("../mail");
 const { hasPermission } = require("../utils");
+const stripe = require("../stripe");
 
 const mutations = {
   async createItem(parent, args, context, info) {
@@ -283,6 +284,68 @@ const mutations = {
       },
       info
     );
+  },
+  async createOrder(parent, args, context, info) {
+    const { userId } = context.request;
+    if (!userId) throw new Error("You must be signed in!");
+
+    const user = await context.db.query.user(
+      { where: { id: userId } },
+      `{
+        id
+        name
+        email
+        cart {
+          id
+          quantity
+          item {
+            title
+            price
+            id
+            description
+            image
+            largeImage
+          }
+        }
+      }`
+    );
+
+    const amount = user.cart.reduce(
+      (total, cartItem) => total + cartItem.item.price * cartItem.quantity,
+      0
+    );
+
+    const charge = await stripe.charges.create({
+      amount,
+      currency: "USD",
+      source: args.token
+    });
+
+    const orderItems = user.cart.map(cartItem => {
+      const orderItem = {
+        ...cartItem.item,
+        quantity: cartItem.quantity,
+        user: { connect: { id: userId } }
+      };
+      delete orderItem.id;
+      return orderItem;
+    });
+
+    const order = await context.db.mutation.createOrder({
+      data: {
+        total: charge.amount,
+        charge: charge.id,
+        items: { create: orderItems },
+        user: { connect: { id: userId } }
+      }
+    });
+
+    const cartItemIds = user.cart.map(cartItem => cartItem.id);
+    await context.db.mutation.deleteManyCartItems({
+      where: { id_in: cartItemIds }
+    });
+
+    return order;
   }
 };
 
