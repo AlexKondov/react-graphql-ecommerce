@@ -55,7 +55,6 @@ class CreateItem extends Component {
     );
 
     const image = await res.json();
-    console.log(image);
 
     this.setState({
       image: image.secure_url,
@@ -68,6 +67,7 @@ class CreateItem extends Component {
       <Mutation mutation={CREATE_ITEM_MUTATION} variables={this.state}>
         {(createItem, { loading, error, called, data }) => (
           <Form
+            data-test="form"
             onSubmit={async e => {
               // Stop the form from submitting
               e.preventDefault();

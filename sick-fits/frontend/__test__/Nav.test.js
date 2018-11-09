@@ -21,7 +21,7 @@ const signedInMocks = [
   }
 ];
 
-const signedInMocks = [
+const signedInMocksWithCartItems = [
   {
     request: { query: CURRENT_USER_QUERY },
     result: {
@@ -36,7 +36,7 @@ const signedInMocks = [
 ];
 
 describe("<Nav />", () => {
-  it("renders a minimal nav when signed out", () => {
+  it("renders a minimal nav when signed out", async () => {
     const wrapper = mount(
       <MockedProvider mocks={notSignedInMocks}>
         <Nav />
@@ -50,7 +50,7 @@ describe("<Nav />", () => {
     expect(toJSON(nav)).toMatchSnapshot();
   });
 
-  it("renders full nav when signed in", () => {
+  it("renders full nav when signed in", async () => {
     const wrapper = mount(
       <MockedProvider mocks={signedInMocks}>
         <Nav />
@@ -66,7 +66,7 @@ describe("<Nav />", () => {
     expect(nav.text()).toContain("Sell");
   });
 
-  it("renders the amount of items in the cart", () => {
+  it("renders the amount of items in the cart", async () => {
     const wrapper = mount(
       <MockedProvider mocks={signedInMocksWithCartItems}>
         <Nav />
