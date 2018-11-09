@@ -7,7 +7,7 @@ import gql from "graphql-tag";
 import formatMoney from "../lib/formatMoney";
 import OrderStyles from "./styles/OrderStyles";
 
-const SINGLE_ORDER_QUERY = gql`
+export const SINGLE_ORDER_QUERY = gql`
   query SINGLE_ORDER_QUERY($id: ID!) {
     order(id: $id) {
       id
@@ -39,7 +39,7 @@ class Order extends Component {
 
           const { order } = data;
           return (
-            <OrderStyles>
+            <OrderStyles data-test="order">
               <Head>
                 <title>Sick Fits - Order {order.id}</title>
               </Head>
